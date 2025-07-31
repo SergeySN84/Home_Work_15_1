@@ -18,11 +18,14 @@ class Category:
     def add_product(self, product):
 
         if not isinstance(product, Product):
-            raise ValueError("Товар с нулевым количеством"
-                             " не может быть добавлен")
+            raise TypeError("Можно добавлять только объекты класса Product или его наследников")
+
+        if not issubclass(type(product), Product):
+            raise TypeError("Класс объекта должен быть наследником Product")
+
         if product.quantity <= 0:
-            raise ValueError("Товар с нулевым количеством"
-                             " не может быть добавлен")
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+
         self.__products.append(product)
         Category.product_count += 1
 
