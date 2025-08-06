@@ -1,112 +1,175 @@
 import pytest
-
-from src.product import Product, Smartphone, LawnGrass
-
-
-def test_create_product():
-    product = Product("Телевизор", "60 дюймов, 4K", 30000.0, 10)
-    assert product.name == "Телевизор"
-    assert product.description == "60 дюймов, 4K"
-    assert product.price == 30000.0
-    assert product.quantity == 10
+from unittest import mock
+from io import StringIO
 
 
-def test_price_setter_correct():
-    product = Product("Телевизор", "60 дюймов, 4K", 30000.0, 10)
-    product.price = 25000
-    assert product.price == 25000
+from src.product import Product, Smartphone, LawnGrass, BaseProduct
 
 
-def test_price_setter_invalid(capfd):
-    product = Product("Телевизор", "60 дюймов, 4K", 30000.0, 10)
-    product.price = -100
+def test_product_is_abstract_base():
+    """Проверка, что Product наследуется от BaseProduct и BaseProduct — абстрактный"""
+    assert issubclass(Product, BaseProduct)
+    assert hasattr(BaseProduct.get_description, "__isabstractmethod__")
+    assert hasattr(BaseProduct.get_price, "__isabstractmethod__")
+
+
+def test_product_inheritance():
+    """Проверка цепочки наследования"""
+    assert isinstance(Product("Товар", "Описание", 100, 5), BaseProduct)
+    assert isinstance(Product("Товар", "Описание", 100, 5), Product)
+
+
+def test_product_creation_logs(capfd):
+    """Проверка, что при создании продукта выводится сообщение"""
+    product = Product("Товар", "Описание", 100.0, 10)
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "Product('Товар', 'Описание', 100.0, 10)"
+
+
+def test_smartphone_creation_logs(capfd):
+    """Проверка лога при создании смартфона"""
+    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "Product('iPhone', 'Смартфон', 80000, 1)"
+
+
+def test_lawn_grass_creation_logs(capfd):
+    """Проверка лога при создании газонной травы"""
+    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "Product('Газон', 'Зелёная трава', 500, 20)"
+
+
+def test_product_attributes():
+    """Проверка атрибутов продукта"""
+    product = Product("Товар", "Описание", 100.0, 5)
+    assert product.name == "Товар"
+    assert product.description == "Описание"
+    assert product.price == 100.0
+    assert product.quantity == 5
+
+
+def test_product_str():
+    """Проверка строкового представления"""
+    product = Product("Товар", "Описание", 100.0, 5)
+    assert str(product) == "Товар, 100.0 руб. Остаток: 5 шт."
+
+
+def test_product_price_setter_correct(monkeypatch):
+    """Проверка установки корректной цены, включая повышение и подтверждённое понижение"""
+    product = Product("Товар", "Описание", 100.0, 5)
+
+    # Подменяем input
+    monkeypatch.setattr('builtins.input', lambda _: 'y')
+
+    # Повышение — без вопроса
+    product.price = 120.0
+    assert product.price == 120.0
+
+    # Понижение — с подтверждением
+    product.price = 110.0
+    assert product.price == 110.0
+
+
+def test_product_price_setter_invalid(capfd):
+    """Проверка установки некорректной цены"""
+    product = Product("Товар", "Описание", 100.0, 5)
+    product.price = -50
     captured = capfd.readouterr()
     assert "Цена введена некорректно!" in captured.out
 
 
-def test_str_product():
-    product = Product("Телевизор", "60 дюймов, 4K", 30000.0, 10)
-    assert str(product) == "Телевизор, 30000.0 руб. Остаток: 10 шт."
+def test_product_price_setter_decrease_confirmation(monkeypatch):
+    """Проверка подтверждения понижения цены"""
+    product = Product("Товар", "Описание", 100.0, 5)
+
+    # Подменяем input на 'y'
+    monkeypatch.setattr('builtins.input', lambda _: 'y')
+    with mock.patch('sys.stdout', new=StringIO()) as fake_out:
+        product.price = 80.0
+        assert "Цена успешно понижена." in fake_out.getvalue()
+
+    assert product.price == 80.0
+
+
+def test_product_price_setter_decrease_rejected(monkeypatch):
+    """Проверка отмены понижения цены"""
+    product = Product("Товар", "Описание", 100.0, 5)
+
+    # Подменяем input на 'n'
+    monkeypatch.setattr('builtins.input', lambda _: 'n')
+    with mock.patch('sys.stdout', new=StringIO()) as fake_out:
+        product.price = 80.0
+        assert "Цена не была изменена." in fake_out.getvalue()
+
+    assert product.price == 100.0
 
 
 def test_product_addition():
-    product1 = Product("Телевизор", "4K", 30000.0, 2)
-    product2 = Product("Телевизор", "8K", 50000.0, 3)
+    """Проверка сложения продуктов"""
+    product1 = Product("Товар1", "Описание", 100.0, 2)
+    product2 = Product("Товар2", "Описание", 150.0, 3)
     total = product1 + product2
-    assert total == 30000*2 + 50000*3  # 60000 + 150000 = 210000
-    assert total == 210000
+    assert total == 100*2 + 150*3  # 200 + 450 = 650
+    assert total == 650
 
 
-def test_addition_different_types():
-    smartphone = Smartphone("iPhone", "Смартфон",
-                            80000, 5, 95.0, "15", 256, "Черный")
-    grass = LawnGrass("Газон", "Зелёная трава",
-                      500, 20, "Россия", "7 дней", "Зелёный")
+def test_product_addition_different_types():
+    """Проверка сложения разных типов — должно быть TypeError"""
+    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
+    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
     with pytest.raises(TypeError):
         smartphone + grass
 
 
-def test_create_smartphone():
-    smartphone = Smartphone("iPhone", "Смартфон",
-                            80000, 5, 95.0, "15", 256, "Черный")
-    assert smartphone.name == "iPhone"
-    assert smartphone.description == "Смартфон"
-    assert smartphone.price == 80000
-    assert smartphone.quantity == 5
+def test_product_count_increment():
+    """Проверка счётчика product_count"""
+    Product.product_count = 0  # Сброс
+    p1 = Product("Товар1", "Описание", 100, 5)
+    p2 = Product("Товар2", "Описание", 200, 3)
+    assert Product.product_count == 2
+
+
+def test_product_count_not_incremented_for_zero_quantity():
+    """Счётчик не увеличивается при quantity = 0"""
+    Product.product_count = 0
+    p = Product("Товар", "Описание", 100, 0)
+    assert Product.product_count == 0
+
+
+def test_smartphone_attributes():
+    """Проверка уникальных атрибутов смартфона"""
+    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
     assert smartphone.efficiency == 95.0
     assert smartphone.model == "15"
     assert smartphone.memory == 256
     assert smartphone.color == "Черный"
 
 
-def test_str_smartphone():
-    smartphone = Smartphone("iPhone", "Смартфон",
-                            80000, 5, 95.0, "15", 256, "Черный")
-    assert str(smartphone) == "iPhone, 80000 руб. Остаток: 5 шт."
-
-
-def test_smartphone_addition():
-    smartphone1 = Smartphone("iPhone", "Смартфон",
-                             80000, 5, 95.0, "15", 256, "Черный")
-    smartphone2 = Smartphone("Samsung", "Флагман",
-                             70000, 3, 90.0, "S23", 512, "Серый")
-    total = smartphone1 + smartphone2
-    assert total == 80000*5 + 70000*3  # 400000 + 210000 = 610000
-    assert total == 610000
-
-
-def test_create_lawn_grass():
-    grass = LawnGrass("Газон", "Зелёная трава",
-                      500, 20, "Россия", "7 дней", "Зелёный")
-    assert grass.name == "Газон"
-    assert grass.description == "Зелёная трава"
-    assert grass.price == 500
-    assert grass.quantity == 20
+def test_lawn_grass_attributes():
+    """Проверка уникальных атрибутов газонной травы"""
+    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
     assert grass.country == "Россия"
     assert grass.germination_period == "7 дней"
     assert grass.color == "Зелёный"
 
 
-def test_str_lawn_grass():
-    grass = LawnGrass("Газон", "Зелёная трава",
-                      500, 20, "Россия", "7 дней", "Зелёный")
-    assert str(grass) == "Газон, 500 руб. Остаток: 20 шт."
+def test_implements_abstract_methods():
+    """Проверка, что Product реализует абстрактные методы"""
+    product = Product("Товар", "Описание", 100, 5)
+    assert product.get_description() == "Описание"
+    assert product.get_price() == 100
 
 
-def test_lawn_grass_addition():
-    grass1 = LawnGrass("Газон", "Зелёная трава",
-                       500, 20, "Россия", "7 дней", "Зелёный")
-    grass2 = LawnGrass("Газон2", "Быстрорастущая",
-                       400, 30, "Германия", "10 дней", "Светло-зелёный")
-    total = grass1 + grass2
-    assert total == 500*20 + 400*30  # 10000 + 12000 = 22000
-    assert total == 22000
-
-
-def test_inheritance():
-    smartphone = Smartphone("iPhone", "Смартфон",
-                            80000, 5, 95.0, "15", 256, "Черный")
-    grass = LawnGrass("Газон", "Зелёная трава",
-                      500, 20, "Россия", "7 дней", "Зелёный")
+def test_smartphone_is_product():
+    """Проверка, что Smartphone — это Product"""
+    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
     assert isinstance(smartphone, Product)
+    assert isinstance(smartphone, BaseProduct)
+
+
+def test_lawn_grass_is_product():
+    """Проверка, что LawnGrass — это Product"""
+    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
     assert isinstance(grass, Product)
+    assert isinstance(grass, BaseProduct)
