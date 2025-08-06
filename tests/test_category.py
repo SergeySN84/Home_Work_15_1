@@ -7,7 +7,8 @@ def test_category_str():
     """Проверка строкового представления категории"""
     product = Product("Товар", "Описание", 100.0, 5)
     category = Category("Категория", "Описание", [product])
-    expected = "Категория, количество продуктов: 1 шт., общее количество: 5 шт."
+    expected = ("Категория, количество продуктов: 1 шт.,"
+                " общее количество: 5 шт.")
     assert str(category) == expected
 
 
@@ -16,7 +17,8 @@ def test_category_products_property():
     product1 = Product("Товар1", "Описание1", 100.0, 5)
     product2 = Product("Товар2", "Описание2", 200.0, 3)
     category = Category("Категория", "Описание", [product1, product2])
-    expected = "Товар1, 100.0 руб. Остаток: 5 шт.\nТовар2, 200.0 руб. Остаток: 3 шт."
+    expected = ("Товар1, 100.0 руб. Остаток: 5 шт."
+                "\nТовар2, 200.0 руб. Остаток: 3 шт.")
     assert category.products == expected
 
 
@@ -46,9 +48,12 @@ def test_category_add_product_valid():
 
 
 def test_category_add_product_invalid_type():
-    """Проверка добавления объекта, не являющегося Product — должен быть TypeError"""
+    """Проверка добавления объекта,
+    не являющегося Product — должен быть TypeError"""
     category = Category("Категория", "Описание", [])
-    with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
+    with pytest.raises(TypeError, match="Можно добавлять "
+                                        "только объекты класса "
+                                        "Product или его наследников"):
         category.add_product("не продукт")
 
 
@@ -56,7 +61,9 @@ def test_category_add_product_zero_quantity():
     """Проверка добавления продукта с нулевым количеством"""
     product = Product("Товар", "Описание", 100.0, 0)
     category = Category("Категория", "Описание", [])
-    with pytest.raises(ValueError, match="Товар с нулевым количеством не может быть добавлен"):
+    with pytest.raises(ValueError, match="Товар с нулевым"
+                                         " количеством не может"
+                                         " быть добавлен"):
         category.add_product(product)
 
 
@@ -64,7 +71,9 @@ def test_category_add_product_negative_quantity():
     """Проверка добавления продукта с отрицательным количеством"""
     product = Product("Товар", "Описание", 100.0, -5)
     category = Category("Категория", "Описание", [])
-    with pytest.raises(ValueError, match="Товар с нулевым количеством не может быть добавлен"):
+    with pytest.raises(ValueError, match="Товар с нулевым"
+                                         " количеством не "
+                                         "может быть добавлен"):
         category.add_product(product)
 
 
@@ -90,13 +99,16 @@ def test_category_total_categories_counter():
 def test_category_str_empty():
     """Проверка __str__ для пустой категории"""
     category = Category("Категория", "Описание", [])
-    assert str(category) == "Категория, количество продуктов: 0 шт., общее количество: 0 шт."
+    assert str(category) == ("Категория, количество "
+                             "продуктов: 0 шт., общее количество: 0 шт.")
 
 
 def test_category_inheritance_support():
     """Проверка, что можно добавлять наследников Product"""
-    smartphone = Smartphone("iPhone", "Смартфон", 80000, 5, 95.0, "15", 256, "Черный")
-    grass = LawnGrass("Газон", "Зелёная трава", 500, 10, "Россия", "7 дней", "Зелёный")
+    smartphone = Smartphone("iPhone", "Смартфон",
+                            80000, 5, 95.0, "15", 256, "Черный")
+    grass = LawnGrass("Газон", "Зелёная трава",
+                      500, 10, "Россия", "7 дней", "Зелёный")
     category = Category("Категория", "Описание", [])
     category.add_product(smartphone)
     category.add_product(grass)

@@ -7,7 +7,8 @@ from src.product import Product, Smartphone, LawnGrass, BaseProduct
 
 
 def test_product_is_abstract_base():
-    """Проверка, что Product наследуется от BaseProduct и BaseProduct — абстрактный"""
+    """Проверка, что Product наследуется от
+    BaseProduct и BaseProduct — абстрактный"""
     assert issubclass(Product, BaseProduct)
     assert hasattr(BaseProduct.get_description, "__isabstractmethod__")
     assert hasattr(BaseProduct.get_price, "__isabstractmethod__")
@@ -28,14 +29,16 @@ def test_product_creation_logs(capfd):
 
 def test_smartphone_creation_logs(capfd):
     """Проверка лога при создании смартфона"""
-    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
+    smartphone = Smartphone("iPhone", "Смартфон",
+                            80000, 1, 95.0, "15", 256, "Черный")
     captured = capfd.readouterr()
     assert captured.out.strip() == "Product('iPhone', 'Смартфон', 80000, 1)"
 
 
 def test_lawn_grass_creation_logs(capfd):
     """Проверка лога при создании газонной травы"""
-    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
+    grass = LawnGrass("Газон", "Зелёная трава",
+                      500, 20, "Россия", "7 дней", "Зелёный")
     captured = capfd.readouterr()
     assert captured.out.strip() == "Product('Газон', 'Зелёная трава', 500, 20)"
 
@@ -56,7 +59,8 @@ def test_product_str():
 
 
 def test_product_price_setter_correct(monkeypatch):
-    """Проверка установки корректной цены, включая повышение и подтверждённое понижение"""
+    """Проверка установки корректной цены,
+    включая повышение и подтверждённое понижение"""
     product = Product("Товар", "Описание", 100.0, 5)
 
     # Подменяем input
@@ -116,8 +120,10 @@ def test_product_addition():
 
 def test_product_addition_different_types():
     """Проверка сложения разных типов — должно быть TypeError"""
-    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
-    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
+    smartphone = Smartphone("iPhone", "Смартфон",
+                            80000, 1, 95.0, "15", 256, "Черный")
+    grass = LawnGrass("Газон", "Зелёная трава",
+                      500, 20, "Россия", "7 дней", "Зелёный")
     with pytest.raises(TypeError):
         smartphone + grass
 
@@ -139,7 +145,8 @@ def test_product_count_not_incremented_for_zero_quantity():
 
 def test_smartphone_attributes():
     """Проверка уникальных атрибутов смартфона"""
-    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
+    smartphone = Smartphone("iPhone", "Смартфон",
+                            80000, 1, 95.0, "15", 256, "Черный")
     assert smartphone.efficiency == 95.0
     assert smartphone.model == "15"
     assert smartphone.memory == 256
@@ -148,7 +155,8 @@ def test_smartphone_attributes():
 
 def test_lawn_grass_attributes():
     """Проверка уникальных атрибутов газонной травы"""
-    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
+    grass = LawnGrass("Газон", "Зелёная трава",
+                      500, 20, "Россия", "7 дней", "Зелёный")
     assert grass.country == "Россия"
     assert grass.germination_period == "7 дней"
     assert grass.color == "Зелёный"
@@ -163,13 +171,15 @@ def test_implements_abstract_methods():
 
 def test_smartphone_is_product():
     """Проверка, что Smartphone — это Product"""
-    smartphone = Smartphone("iPhone", "Смартфон", 80000, 1, 95.0, "15", 256, "Черный")
+    smartphone = Smartphone("iPhone", "Смартфон",
+                            80000, 1, 95.0, "15", 256, "Черный")
     assert isinstance(smartphone, Product)
     assert isinstance(smartphone, BaseProduct)
 
 
 def test_lawn_grass_is_product():
     """Проверка, что LawnGrass — это Product"""
-    grass = LawnGrass("Газон", "Зелёная трава", 500, 20, "Россия", "7 дней", "Зелёный")
+    grass = LawnGrass("Газон", "Зелёная трава",
+                      500, 20, "Россия", "7 дней", "Зелёный")
     assert isinstance(grass, Product)
     assert isinstance(grass, BaseProduct)

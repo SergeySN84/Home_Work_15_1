@@ -26,8 +26,8 @@ class Product(LogCreationMixin, BaseProduct):
         self._price = price
         self.quantity = quantity
 
-
-        print(f"Product('{self.name}', '{self.description}', {self.price}, {self.quantity})")
+        print(f"Product('{self.name}', '{self.description}',"
+              f" {self.price}, {self.quantity})")
 
         if self.quantity > 0:
             Product.product_count += 1
@@ -66,7 +66,8 @@ class Product(LogCreationMixin, BaseProduct):
 
 
 class Smartphone(Product):
-    def __init__(self, name, description, price, quantity, efficiency, model, memory, color):
+    def __init__(self, name, description, price,
+                 quantity, efficiency, model, memory, color):
         self.efficiency = efficiency
         self.model = model
         self.memory = memory
@@ -75,7 +76,8 @@ class Smartphone(Product):
 
 
 class LawnGrass(Product):
-    def __init__(self, name, description, price, quantity, country, germination_period, color):
+    def __init__(self, name, description, price, quantity,
+                 country, germination_period, color):
         self.country = country
         self.germination_period = germination_period
         self.color = color
