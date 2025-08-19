@@ -12,7 +12,6 @@ class BaseProduct(ABC):
 
 
 class LogCreationMixin:
-
     pass
 
 
@@ -24,13 +23,17 @@ class Product(LogCreationMixin, BaseProduct):
         self.name = name
         self.description = description
         self._price = price
+
+        if quantity <= 0:
+            raise ValueError("Товар с нулевым количеством"
+                             " не может быть добавлен")
+
         self.quantity = quantity
 
         print(f"Product('{self.name}', '{self.description}',"
               f" {self.price}, {self.quantity})")
 
-        if self.quantity > 0:
-            Product.product_count += 1
+        Product.product_count += 1
 
     @property
     def price(self):
@@ -66,8 +69,8 @@ class Product(LogCreationMixin, BaseProduct):
 
 
 class Smartphone(Product):
-    def __init__(self, name, description, price,
-                 quantity, efficiency, model, memory, color):
+    def __init__(self, name, description, price, quantity,
+                 efficiency, model, memory, color):
         self.efficiency = efficiency
         self.model = model
         self.memory = memory

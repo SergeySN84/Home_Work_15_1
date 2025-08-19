@@ -57,26 +57,6 @@ def test_category_add_product_invalid_type():
         category.add_product("не продукт")
 
 
-def test_category_add_product_zero_quantity():
-    """Проверка добавления продукта с нулевым количеством"""
-    product = Product("Товар", "Описание", 100.0, 0)
-    category = Category("Категория", "Описание", [])
-    with pytest.raises(ValueError, match="Товар с нулевым"
-                                         " количеством не может"
-                                         " быть добавлен"):
-        category.add_product(product)
-
-
-def test_category_add_product_negative_quantity():
-    """Проверка добавления продукта с отрицательным количеством"""
-    product = Product("Товар", "Описание", 100.0, -5)
-    category = Category("Категория", "Описание", [])
-    with pytest.raises(ValueError, match="Товар с нулевым"
-                                         " количеством не "
-                                         "может быть добавлен"):
-        category.add_product(product)
-
-
 def test_category_total_products_counter():
     """Проверка счётчика product_count"""
     Category.product_count = 0  # Сброс для теста
@@ -132,3 +112,30 @@ def test_category_access_private_products():
     product = Product("Товар", "Описание", 100.0, 5)
     category.add_product(product)
     assert product in category._Category__products
+
+
+def test_category_middle_price():
+    """Проверка метода middle_price — средняя цена товаров"""
+    product1 = Product("Товар1", "Описание", 100.0, 5)
+    product2 = Product("Товар2", "Описание", 200.0, 3)
+    product3 = Product("Товар3", "Описание", 300.0, 1)
+    category = Category("Категория", "Описание",
+                        [product1, product2, product3])
+    avg = category.middle_price()
+    assert avg == (100 + 200 + 300) / 3
+    assert avg == 200.0
+
+
+def test_category_middle_price_empty():
+    """Проверка middle_price для пустой категории — должно вернуть 0"""
+    category = Category("Пустая", "Описание", [])
+    avg = category.middle_price()
+    assert avg == 0
+
+
+def test_category_middle_price_one_product():
+    """Проверка middle_price для категории с одним товаром"""
+    product = Product("Товар", "Описание", 500.0, 1)
+    category = Category("Категория", "Описание", [product])
+    avg = category.middle_price()
+    assert avg == 500.0

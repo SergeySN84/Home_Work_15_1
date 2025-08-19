@@ -17,15 +17,9 @@ class Category:
 
     def add_product(self, product):
         if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только "
-                            "объекты класса Product или его наследников")
+            raise TypeError("Можно добавлять только объекты "
+                            "класса Product или его наследников")
 
-        if not issubclass(type(product), Product):
-            raise TypeError("Класс объекта должен быть наследником Product")
-
-        if product.quantity <= 0:
-            raise ValueError("Товар с нулевым "
-                             "количеством не может быть добавлен")
         self.__products.append(product)
         Category.product_count += 1
 
@@ -38,3 +32,11 @@ class Category:
         return (f"{self.name}, количество продуктов:"
                 f" {len(self.__products)} шт., "
                 f"общее количество: {total_quantity} шт.")
+
+    def middle_price(self):
+        try:
+            total_price = sum(product.price for product in self.__products)
+            count = len(self.__products)
+            return total_price / count
+        except ZeroDivisionError:
+            return 0

@@ -137,9 +137,12 @@ def test_product_count_increment():
 
 
 def test_product_count_not_incremented_for_zero_quantity():
-    """Счётчик не увеличивается при quantity = 0"""
+    """Счётчик не увеличивается при попытке создать товар с quantity <= 0"""
     Product.product_count = 0
-    p = Product("Товар", "Описание", 100, 0)
+    with pytest.raises(ValueError, match="Товар с нулевым"
+                                         " количеством не "
+                                         "может быть добавлен"):
+        Product("Товар", "Описание", 100, 0)
     assert Product.product_count == 0
 
 
@@ -183,3 +186,19 @@ def test_lawn_grass_is_product():
                       500, 20, "Россия", "7 дней", "Зелёный")
     assert isinstance(grass, Product)
     assert isinstance(grass, BaseProduct)
+
+
+def test_product_create_with_zero_quantity():
+    """Проверка, что при создании товара с
+    quantity=0 выбрасывается ValueError"""
+    with pytest.raises(ValueError, match="Товар с нулевым количеством"
+                                         " не может быть добавлен"):
+        Product("Товар", "Описание", 100.0, 0)
+
+
+def test_product_create_with_negative_quantity():
+    """Проверка, что при создании товара с отрицательным
+    quantity выбрасывается ValueError"""
+    with pytest.raises(ValueError, match="Товар с нулевым количеством"
+                                         " не может быть добавлен"):
+        Product("Товар", "Описание", 100.0, -5)
