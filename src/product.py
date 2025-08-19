@@ -63,6 +63,7 @@ class Product(LogCreationMixin, BaseProduct):
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other):
+
         if type(self) is not type(other):
             raise TypeError
         return self.price * self.quantity + other.price * other.quantity

@@ -35,6 +35,7 @@ class Category:
 
     def middle_price(self):
         try:
+
             total_price = sum(product.price for product in self.__products)
             count = len(self.__products)
             return total_price / count
