@@ -7,6 +7,7 @@ from src.product import Product, Smartphone, LawnGrass, BaseProduct
 
 
 def test_product_is_abstract_base():
+
     """Проверка, что Product наследуется от
     BaseProduct и BaseProduct — абстрактный"""
     assert issubclass(Product, BaseProduct)

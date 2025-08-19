@@ -13,6 +13,7 @@ def test_category_str():
 
 
 def test_category_products_property():
+
     """Проверка свойства products — вывод всех продуктов по одному на строку"""
     product1 = Product("Товар1", "Описание1", 100.0, 5)
     product2 = Product("Товар2", "Описание2", 200.0, 3)
